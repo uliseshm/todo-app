@@ -9,7 +9,6 @@ import {
     Platform,
 } from 'react-native';
 import TodoInput from '../components/TodoInput';
-import TOdoItem from '../components/TodoItem';
 import TodoItem from '../components/TodoItem';
 
 const initialTasks = [
@@ -37,7 +36,7 @@ export default function TodoListScreen() {
     }
 
     const deleteTask = (id) => {
-        console.log('Delete task:', id);
+        setTasks(tasks.filter((task) => task.id !== id));
     }
 
     const renderItem = ({item}) => (
@@ -58,12 +57,16 @@ export default function TodoListScreen() {
             <View style={styles.container}>
                 <Text style={styles.header}>Mi Lista de Tareas</Text>
 
+                {tasks.length === 0 ? (
+                <Text style={styles.noTasksText}>¡No tienes tareas pendientes! 🎉</Text>
+                ) : (
                 <FlatList
                     data={tasks} // los datos que se van a a renderizar
                     renderItem={renderItem} // la funcion que renderiza cada item
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContent}
-                 />               
+                 />
+                 )}               
             </View>
 
             <TodoInput onAddTask={addTask} />
@@ -117,5 +120,11 @@ const styles = StyleSheet.create({
   completedTaskText: {
     textDecorationLine: 'line-through',
     color: '#888',
+  },
+  noTasksText: {
+    fontSize: 20,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 50,
   },
 });
