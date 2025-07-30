@@ -9,6 +9,8 @@ import {
     Platform,
 } from 'react-native';
 import TodoInput from '../components/TodoInput';
+import TOdoItem from '../components/TodoItem';
+import TodoItem from '../components/TodoItem';
 
 const initialTasks = [
   { id: '1', text: 'Aprender React Native', completed: false },
@@ -27,8 +29,11 @@ export default function TodoListScreen() {
     }
 
     const toggleTaskCompleted = (id) => {
-        console.log('Toggle task:', id);
-        // aqui ira la logica para cambiar estado de completed de una tarea
+        setTasks(
+          tasks.map((task) =>
+            task.id === id ? {...task, completed: !task.completed} : task
+          )
+        );
     }
 
     const deleteTask = (id) => {
@@ -36,12 +41,11 @@ export default function TodoListScreen() {
     }
 
     const renderItem = ({item}) => (
-        <View style={styles.taskItem}>
-            <Text style={[styles.taskText, item.completed && styles.completedTaskText]}>
-                {item.text}
-            </Text>
-            {/* botones o iconos para acciones */}
-        </View>
+        <TodoItem
+          item={item}
+          onToggleCompleted={toggleTaskCompleted}
+          onDeletedTask={deleteTask}
+        />
     );
 
     return (
@@ -64,7 +68,6 @@ export default function TodoListScreen() {
 
             <TodoInput onAddTask={addTask} />
           </KeyboardAvoidingView>
-            
         </SafeAreaView>
     )
 }
