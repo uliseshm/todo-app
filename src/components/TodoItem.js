@@ -23,7 +23,6 @@ export default function TodoItem({item, onToggleCompleted, onDeletedTask}) {
                 style={styles.deleteButton}
                 onPress={() => onDeletedTask(item.id)}
             >
-                <Text style={styles.deleteButtonText}>✕</Text>
                 <MaterialIcons name="delete" size={24} color="#FF6347" />
             </TouchableOpacity>
         </View>

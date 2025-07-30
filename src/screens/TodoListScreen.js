@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     View,
     Text,
@@ -7,36 +7,69 @@ import {
     SafeAreaView,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import TodoInput from '../components/TodoInput';
 import TodoItem from '../components/TodoItem';
 
-const initialTasks = [
-  { id: '1', text: 'Aprender React Native', completed: false },
-  { id: '2', text: 'Construir la To-Do App', completed: true },
-  { id: '3', text: 'Hacer ejercicio', completed: false },
-  { id: '4', text: 'Comprar víveres', completed: false },
-];
+// const initialTasks = [
+//   { id: '1', text: 'Aprender React Native', completed: false },
+//   { id: '2', text: 'Construir la To-Do App', completed: true },
+//   { id: '3', text: 'Hacer ejercicio', completed: false },
+//   { id: '4', text: 'Comprar víveres', completed: false },
+// ];
+
+const STORAGE_KEY = '@my_todo_app:tasks';
 
 export default function TodoListScreen() {
-    const [tasks, setTasks] = useState(initialTasks);
+    const [tasks, setTasks] = useState([]);
+
+    useEffect(() => {
+      const loadTask = async () => {
+        try {
+          const storedTask = await AsyncStorage.getItem(STORAGE_KEY);
+          if (storedTask !== null) {
+            setTasks(JSON.parse(storedTask));
+          }
+        } catch (error) {
+          console.error('Error al cargar tareas:', error);
+          Alert.alert('Error', 'No se pudieron cargar las tareas. Intenta de nuevo.');
+        }
+      };
+
+      loadTask();
+    }, []);
+
+    useEffect(() => {
+      const saveTasks = async () => {
+        try {
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        } catch (error) {
+          console.error('Error al guardar tarea:', error);
+          Alert.alert('Error', 'No se pudieron guardar las tareas, intentna de nuevo.')
+        }
+      };
+
+      saveTasks();
+    }, [tasks]);
 
     const addTask = (text) => {
-      const newID = String(tasks.length ? Math.max(...tasks.map(task => parseInt(task.id))) + 1 : 1);
-      const newTask = {id: newID, text, completed: false};
-      setTasks([...tasks, newTask]);
+      const newId = String(Date.now());
+      const newTask = {id: newId, text, completed: false};
+      setTasks((prevTasks) => [...prevTasks, newTask]);
     }
 
     const toggleTaskCompleted = (id) => {
-        setTasks(
-          tasks.map((task) =>
-            task.id === id ? {...task, completed: !task.completed} : task
-          )
-        );
-    }
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === id ? { ...task, completed: !task.completed } : task
+        )
+      );
+    };
 
     const deleteTask = (id) => {
-        setTasks(tasks.filter((task) => task.id !== id));
+        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
     }
 
     const renderItem = ({item}) => (
